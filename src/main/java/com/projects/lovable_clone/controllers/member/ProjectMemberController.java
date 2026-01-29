@@ -5,7 +5,6 @@ import com.projects.lovable_clone.dtos.member.MemberResponse;
 import com.projects.lovable_clone.dtos.member.UpdateMemberRoleRequest;
 import com.projects.lovable_clone.services.ProjectMemberService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,10 +40,10 @@ public class ProjectMemberController {
     public ResponseEntity<MemberResponse> updateMemberRole(
             @PathVariable Long projectId,
             @PathVariable Long memberId,
-            @RequestBody InviteMemberRequest inviteMemberRequest){
+            @RequestBody UpdateMemberRoleRequest updateMemberRoleRequest){
 
         Long userId= 1L;
-        return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId, memberId,inviteMemberRequest,userId));
+        return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId, memberId,updateMemberRoleRequest,userId));
 
     }
 

@@ -1,4 +1,20 @@
 spring:
   application:
-    name : loveable-clone
-    description : Loveable-clone
+    name: loveable-clone
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/loveable_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: Asia/Kolkata  # Changed from UTC - use modern timezone name
