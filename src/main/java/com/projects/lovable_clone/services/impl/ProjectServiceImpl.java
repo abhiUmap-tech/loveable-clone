@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -49,19 +50,55 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectResponse getUserProjectsById(Long id, Long userId) {
-        return null;
+    public ProjectResponse getUserProjectsById(Long projectId, Long userId) {
+        var project = getAccessibleProjectsById(projectId, userId);
+        return projectMapper.projectToProjectResponse(project);
     }
 
 
 
     @Override
-    public ProjectResponse updateProject(Long id, ProjectRequest projectRequest, Long userId) {
-        return null;
+    public ProjectResponse updateProject(Long projectId, ProjectRequest projectRequest, Long userId) {
+        var project = getAccessibleProjectsById(projectId, userId);
+
+        project.setName(projectRequest.name());
+        var updatedProject = projectRepository.save(project);
+        return projectMapper.projectToProjectResponse(updatedProject);
     }
 
     @Override
     public String softDelete(Long id, Long userId) {
-        return "";
+        var project = getAccessibleProjectsById(id, userId);
+
+        if (!project.getOwner().getId().equals(userId))
+            throw new RuntimeException("You are not allowed to delete");
+
+        project.setDeleteAt(Instant.now());
+        projectRepository.save(project);
+        return "Project Deleted";
+
+    }
+
+    @Override
+    public String restoreProject(Long projectId, Long userId) {
+        var project = projectRepository.findByIdIncludingDeleted(projectId, userId)
+                .orElseThrow();
+
+        if(!project.getOwner().getId().equals(userId))
+            throw new RuntimeException("You are not allowed to restore");
+
+        project.setDeleteAt(null);
+        projectRepository.save(project);
+
+        return "Project Restored";
+    }
+
+    //INTERNAL FUNCTIONS
+    /// “Give me a project with this ID, owned by this user,
+    /// that is not deleted — and also load the owner details immediately.”
+
+    public Project getAccessibleProjectsById(Long projectId, Long userId){
+        return projectRepository.findAccessibleProjectsById(projectId, userId)
+                .orElseThrow();
     }
 }

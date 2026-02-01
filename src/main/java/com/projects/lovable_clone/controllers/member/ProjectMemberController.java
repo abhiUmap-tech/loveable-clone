@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -48,12 +49,12 @@ public class ProjectMemberController {
     }
 
   @DeleteMapping("/{memberId}")
-    public ResponseEntity<MemberResponse> deleteMemberRole(
+    public ResponseEntity<String> deleteMemberRole(
             @PathVariable Long projectId,
-            @PathVariable Long memberId){
+            @PathVariable Long memberId) throws AccessDeniedException {
 
         Long userId= 1L;
-        return ResponseEntity.ok(projectMemberService.deleteProjectMember(projectId, memberId,userId));
+        return ResponseEntity.ok(projectMemberService.removeProjectMember(projectId, memberId,userId));
 
     }
 
