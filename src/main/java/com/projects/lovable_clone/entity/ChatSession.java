@@ -2,7 +2,6 @@ package com.projects.lovable_clone.entity;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
 
 import java.time.Instant;
 

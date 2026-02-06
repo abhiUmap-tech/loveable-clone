@@ -6,6 +6,7 @@ import com.projects.lovable_clone.dtos.member.UpdateMemberRoleRequest;
 import com.projects.lovable_clone.entity.Project;
 import com.projects.lovable_clone.entity.ProjectMember;
 import com.projects.lovable_clone.entity.ProjectMemberId;
+import com.projects.lovable_clone.error.ResourceNotFoundException;
 import com.projects.lovable_clone.mapper.ProjectMemberMapper;
 import com.projects.lovable_clone.repository.ProjectMemberRepository;
 import com.projects.lovable_clone.repository.ProjectRepository;
@@ -17,9 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,30 +34,20 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
     @Override
     public List<MemberResponse> getProjectMembers(Long projectId, Long userId) {
-        var project = getAccessibleProjectById(projectId, userId);
-
-        List<MemberResponse> memberResponseList = new ArrayList<>();
-        memberResponseList.add(projectMemberMapper.toProjectMemberResponseFromOwner(project.getOwner()));
-
-        memberResponseList.addAll(
-                projectMemberRepository.findByIdProjectId(projectId)
+        //var project = getAccessibleProjectById(projectId, userId);
+        return projectMemberRepository.findByIdProjectId(projectId)
                 .stream()
                 .map(projectMemberMapper::toProjectMemberResponseFromMember)
-                .toList());
-
-
-        return memberResponseList;
+                .toList();
     }
 
     @Override
     public MemberResponse inviteMember(Long projectId, InviteMemberRequest inviteMemberRequest, Long userId) {
         var project = getAccessibleProjectById(projectId, userId);
 
-        if(!project.getOwner().getId().equals(userId))
-            throw new RuntimeException("Not allowed");
 
-        var invitee = userRepository.findByEmail(inviteMemberRequest.email())
-                .orElseThrow();
+        var invitee = userRepository.findByUsername(inviteMemberRequest.username())
+                .orElseThrow(() -> new ResourceNotFoundException("User", inviteMemberRequest.username()));
 
         if (invitee.getId().equals(userId))
             throw new RuntimeException("Cannot invite yourself");
@@ -82,12 +71,6 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
     @Override
     public MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest updateMemberRoleRequest, Long userId) {
-        var project = getAccessibleProjectById(projectId, userId);
-
-        //Check if they are project owner
-        if(!project.getOwner().getId().equals(userId))
-            throw new RuntimeException("You are not the Project Owner");
-
         var projectMemberId = new ProjectMemberId(projectId, memberId);
 
         var projectMember = projectMemberRepository.findById(projectMemberId)
@@ -100,19 +83,12 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     }
 
     @Override
-    public String removeProjectMember(Long projectId, Long memberId, Long userId) throws AccessDeniedException {
-        //Get the Project
-        var project = getAccessibleProjectById(projectId, userId);
-
-        //Check whether the person is the owner or not
-        if (!project.getOwner().getId().equals(userId))
-            throw new AccessDeniedException("You are not the Owner of the Project");
-
+    public String removeProjectMember(Long projectId, Long memberId, Long userId) {
         var projectMemberId = new ProjectMemberId(projectId, memberId);
 
         var projectMember = projectMemberRepository.findById(projectMemberId)
                 .orElseThrow(() ->
-                        new RuntimeException("Project member does not exist"));
+                        new ResourceNotFoundException("User", memberId.toString()));
 
         projectMemberRepository.delete(projectMember);
         return "Project member with id " + memberId + " deleted successfully";
@@ -124,6 +100,6 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     /// that is not deleted — and also load the owner details immediately.”
     public Project getAccessibleProjectById(Long projectId, Long userId){
         return projectRepository.findAccessibleProjectsById(projectId, userId)
-            .orElseThrow();
+            .orElseThrow(() -> new ResourceNotFoundException("Project", projectId.toString()));
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ProjectMapper {
 
-    @Mapping(source = "owner", target = "userProfileResponse")
+    //@Mapping(target = "", source = "")
     ProjectResponse projectToProjectResponse(Project project);
 
 

@@ -1,6 +1,10 @@
 package com.projects.lovable_clone.dtos.auth;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public record LoginRequest(
-        String email,
-        String password) {}
+       @Email @NotBlank String username,
+       @Size(min = 4, max = 50) String password) {}
 

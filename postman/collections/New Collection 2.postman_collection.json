@@ -1,0 +1,52 @@
+{
+  "info": {
+    "_postman_id": "7f469f91-8ec5-4bc1-8012-a666934bd4ad",
+    "name": "Auth Request",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Sign Up",
+      "id": "ee39b707-e22c-4938-9fbf-8590eede5a06",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n \"name\" : \"Vinyak Ingale\",\r\n \"username\" : \"vinayakIngale@spring.com\",\r\n \"password\" : \"pass\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/signup",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "auth",
+            "signup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "id": "47dd431d-8231-4371-ae22-49816805b747",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    }
+  ]
+}

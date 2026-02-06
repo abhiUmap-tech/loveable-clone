@@ -1,0 +1,158 @@
+{
+  "info": {
+    "_postman_id": "73bfe6e9-2762-4cd6-8e56-996a5d3b19b1",
+    "name": "Project APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Projects",
+      "id": "7fe17792-fbdc-4280-ba46-a7642ae40aea",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n \"name\" : \"GitHub Actions CI/CD \"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/projects",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "projects"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Project By Owner",
+      "id": "685566e2-7aba-49e9-b665-35a4f0395dc2",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/projects",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "projects"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Projects by ID",
+      "id": "068c4594-6357-44c6-8ffd-fee78b78cd3c",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/projects/11",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "projects",
+            "11"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Project",
+      "id": "856d6110-64d4-415f-8383-5ffa5eb10bde",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n \"name\" : \"Jenkis CI/CD Pipeline\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/projects/11",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "projects",
+            "11"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Soft Delete Project",
+      "id": "e3957122-2101-4a89-8b07-63b4e522181b",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/projects/11",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "projects",
+            "11"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Restore Project",
+      "id": "3cacdb84-38ba-4225-913c-7b99296face2",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/projects/11/restore",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "projects",
+            "11",
+            "restore"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

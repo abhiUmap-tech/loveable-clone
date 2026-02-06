@@ -14,8 +14,15 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "projects")
 @Entity
+@Table(name = "projects",
+indexes = {
+        @Index(name = "idx_projects_updated_at_desc",
+        columnList = "updated_at DESC, deleted_at"),
+
+        @Index(name = "idx_project_deleted_at",
+        columnList = "deleted_at")
+})
 public class Project {
 
     @Id
@@ -25,18 +32,20 @@ public class Project {
     @Column(nullable = false)
     String name;
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
-    User owner;
+
 
     Boolean isPublic = false;
 
     @CreationTimestamp
+    @Column(name = "created_at")
     Instant createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     Instant updatedAt;
 
-    Instant deleteAt; //soft delete
+    @Column(name = "deleted_at")
+    Instant deletedAt; //soft delete
+
 
 }
