@@ -4,7 +4,6 @@ import com.projects.lovable_clone.dtos.project.ProjectResponse;
 import com.projects.lovable_clone.dtos.project.ProjectSummaryResponse;
 import com.projects.lovable_clone.entity.Project;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 

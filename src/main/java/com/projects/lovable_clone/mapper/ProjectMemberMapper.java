@@ -2,7 +2,6 @@ package com.projects.lovable_clone.mapper;
 
 import com.projects.lovable_clone.dtos.member.MemberResponse;
 import com.projects.lovable_clone.entity.ProjectMember;
-import com.projects.lovable_clone.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
