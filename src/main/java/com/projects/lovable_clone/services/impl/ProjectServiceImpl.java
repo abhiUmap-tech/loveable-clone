@@ -12,11 +12,13 @@ import com.projects.lovable_clone.mapper.ProjectMapper;
 import com.projects.lovable_clone.repository.ProjectMemberRepository;
 import com.projects.lovable_clone.repository.ProjectRepository;
 import com.projects.lovable_clone.repository.UserRepository;
+import com.projects.lovable_clone.security.AuthUtil;
 import com.projects.lovable_clone.services.ProjectService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -32,11 +34,12 @@ public class ProjectServiceImpl implements ProjectService {
     UserRepository userRepository;
     ProjectMapper projectMapper;
     ProjectMemberRepository projectMemberRepository;
+    AuthUtil authUtil;
 
     @Override
-    public ProjectResponse createProject(ProjectRequest projectRequest, Long userId) {
-        var owner = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", userId.toString()));
+    public ProjectResponse createProject(ProjectRequest projectRequest) {
+        var userId = authUtil.getCurrentUserId();
+        var owner = userRepository.getReferenceById(userId);
 
         var project = Project.builder()
                 .name(projectRequest.name())
@@ -60,23 +63,23 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectSummaryResponse> getUserProjects(Long userId) {
-        var projects = projectRepository.findAllAccessibleByUser(userId);
+    public List<ProjectSummaryResponse> getUserProjects() {
+        var projects = projectRepository.findAllAccessibleByUser(authUtil.getCurrentUserId());
         return projectMapper.listProjectsToListOfProjectSummaryResponse(projects);
-
     }
 
     @Override
-    public ProjectResponse getUserProjectsById(Long projectId, Long userId) {
-        var project = getAccessibleProjectsById(projectId, userId);
+    @PreAuthorize("@security.canViewProject(#projectId)")
+    public ProjectResponse getUserProjectsById(Long projectId) {
+        var project = getAccessibleProjectsById(projectId, authUtil.getCurrentUserId());
         return projectMapper.projectToProjectResponse(project);
     }
 
 
-
     @Override
-    public ProjectResponse updateProject(Long projectId, ProjectRequest projectRequest, Long userId) {
-        var project = getAccessibleProjectsById(projectId, userId);
+    @PreAuthorize("@security.canEditProject(#projectId)")
+    public ProjectResponse updateProject(Long projectId, ProjectRequest projectRequest) {
+        var project = getAccessibleProjectsById(projectId, authUtil.getCurrentUserId());
 
         project.setName(projectRequest.name());
         var updatedProject = projectRepository.save(project);
@@ -84,8 +87,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public String softDelete(Long id, Long userId) {
-        var project = getAccessibleProjectsById(id, userId);
+    @PreAuthorize("@security.canDeleteProject(#projectId)")
+    public String softDelete(Long projectId) {
+        var project = getAccessibleProjectsById(projectId, authUtil.getCurrentUserId());
 
         project.setDeletedAt(Instant.now());
         projectRepository.save(project);
@@ -94,8 +98,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public String restoreProject(Long projectId, Long userId) {
-        var project = projectRepository.findByIdIncludingDeleted(projectId, userId)
+    public String restoreProject(Long projectId) {
+        var project = projectRepository.findByIdIncludingDeleted(projectId, authUtil.getCurrentUserId())
                 .orElseThrow();
 
         project.setDeletedAt(null);

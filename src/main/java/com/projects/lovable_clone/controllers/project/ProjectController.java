@@ -5,7 +5,9 @@ import com.projects.lovable_clone.dtos.project.ProjectResponse;
 import com.projects.lovable_clone.dtos.project.ProjectSummaryResponse;
 import com.projects.lovable_clone.services.ProjectService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,46 +16,45 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/api/projects")
 public class ProjectController {
 
-    private final ProjectService projectService;
+    ProjectService projectService;
+
 
     @GetMapping
     public ResponseEntity<List<ProjectSummaryResponse>> getMyProject(){
-        Long userId = 1L;//TODO : update later with Spring Security
-        return ResponseEntity.ok(projectService.getUserProjects(userId));
+        return ResponseEntity.ok(projectService.getUserProjects());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProjectResponse> getProjectById(@PathVariable  Long id){
-        //TODO : Get Projects by Id provided
-        Long userId = 1L;
-        return ResponseEntity.ok(projectService.getUserProjectsById(id, userId));
+        return ResponseEntity.ok(projectService.getUserProjectsById(id));
     }
 
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@RequestBody @Valid ProjectRequest projectRequest){
-        Long userId = 1L;
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(projectRequest, userId));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(projectRequest));
     }
 
     @PatchMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> updateProject(@PathVariable Long projectId, @RequestBody @Valid ProjectRequest projectRequest){
-        Long userId = 1L;
-        return ResponseEntity.ok(projectService.updateProject(projectId, projectRequest, userId));
+
+        return ResponseEntity.ok(projectService.updateProject(projectId, projectRequest));
     }
 
     @PutMapping("/{projectId}/restore")
     public ResponseEntity<String> restoreProject(@PathVariable Long projectId){
-        Long userId = 1L;
-        return ResponseEntity.ok(projectService.restoreProject(projectId, userId));
+
+        return ResponseEntity.ok(projectService.restoreProject(projectId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProject(@PathVariable Long id){
-        Long userId = 1L;
-        return ResponseEntity.ok(projectService.softDelete(id, userId));
+
+        return ResponseEntity.ok(projectService.softDelete(id));
 
     }
 

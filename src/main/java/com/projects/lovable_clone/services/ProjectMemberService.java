@@ -8,12 +8,12 @@ import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 public interface ProjectMemberService {
-    List<MemberResponse> getProjectMembers(Long projectId, Long userId);
+    List<MemberResponse> getProjectMembers(Long projectId);
 
-    MemberResponse inviteMember(Long projectId, InviteMemberRequest inviteMemberRequest, Long userId);
+    MemberResponse inviteMember(Long projectId, InviteMemberRequest inviteMemberRequest);
 
 
-    MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest updateMemberRoleRequest,Long userId);
+    MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest updateMemberRoleRequest);
 
-    String removeProjectMember(Long projectId, Long memberId, Long userId) throws AccessDeniedException;
+    String removeProjectMember(Long projectId, Long memberId) throws AccessDeniedException;
 }

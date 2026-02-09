@@ -22,8 +22,7 @@ public class ProjectMemberController {
 
     @GetMapping
     public ResponseEntity<List<MemberResponse>> getProjectMember(@PathVariable Long projectId){
-        Long userId = 1L;
-        return ResponseEntity.ok(projectMemberService.getProjectMembers(projectId, userId));
+        return ResponseEntity.ok(projectMemberService.getProjectMembers(projectId));
     }
 
     @PostMapping
@@ -31,9 +30,8 @@ public class ProjectMemberController {
             @PathVariable Long projectId,
             @RequestBody @Valid InviteMemberRequest inviteMemberRequest){
 
-        Long userId = 1L;
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(projectMemberService.inviteMember(projectId, inviteMemberRequest, userId));
+                .body(projectMemberService.inviteMember(projectId, inviteMemberRequest));
 
 
     }
@@ -43,9 +41,7 @@ public class ProjectMemberController {
             @PathVariable Long projectId,
             @PathVariable Long memberId,
             @RequestBody @Valid UpdateMemberRoleRequest updateMemberRoleRequest){
-
-        Long userId= 1L;
-        return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId, memberId,updateMemberRoleRequest,userId));
+        return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId, memberId,updateMemberRoleRequest));
 
     }
 
@@ -53,9 +49,7 @@ public class ProjectMemberController {
     public ResponseEntity<String> deleteMemberRole(
             @PathVariable Long projectId,
             @PathVariable Long memberId) throws AccessDeniedException {
-
-        Long userId= 1L;
-        return ResponseEntity.ok(projectMemberService.removeProjectMember(projectId, memberId,userId));
+        return ResponseEntity.ok(projectMemberService.removeProjectMember(projectId, memberId));
 
     }
 

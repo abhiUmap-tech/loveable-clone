@@ -8,15 +8,15 @@ import java.util.List;
 
 public interface ProjectService {
 
-    List<ProjectSummaryResponse> getUserProjects(Long userId);
+    List<ProjectSummaryResponse> getUserProjects();
 
-    ProjectResponse getUserProjectsById(Long projectId, Long userId);
+    ProjectResponse getUserProjectsById(Long projectId);
 
-    ProjectResponse createProject(ProjectRequest projectRequest, Long userId);
+    ProjectResponse createProject(ProjectRequest projectRequest);
 
-    ProjectResponse updateProject(Long projectId, ProjectRequest projectRequest, Long userId);
+    ProjectResponse updateProject(Long projectId, ProjectRequest projectRequest);
 
-    String softDelete(Long id, Long userId);
+    String softDelete(Long projectId);
 
-    String restoreProject(Long projectId, Long userId);
+    String restoreProject(Long projectId);
 }
