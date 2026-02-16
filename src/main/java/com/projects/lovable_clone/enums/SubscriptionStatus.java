@@ -5,5 +5,5 @@ public enum SubscriptionStatus {
     TRAILING,
     CANCELLED,
     PAST_DUE,
-    INCOMPLETE
+    INACTIVE, INCOMPLETE
 }

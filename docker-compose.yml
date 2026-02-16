@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    container_name: stripe-cli
+    volumes:
+      - stripe-config:/root/.config/stripe
+    command: listen --forward-to host.docker.internal:8080/api/stripe/webhook
+    restart: unless-stopped
+
+volumes:
+  stripe-config:
+
+# Run this command once
+#  docker-compose run --rm stripe-cli login

@@ -4,12 +4,21 @@ import com.projects.lovable_clone.dtos.subscription.CheckoutRequest;
 import com.projects.lovable_clone.dtos.subscription.CheckoutResponse;
 import com.projects.lovable_clone.dtos.subscription.PortalResponse;
 import com.projects.lovable_clone.dtos.subscription.SubscriptionResponse;
+import com.projects.lovable_clone.enums.SubscriptionStatus;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
+
 public interface SubscriptionService {
-    SubscriptionResponse getCurrentSubscription(Long userId);
+    SubscriptionResponse getCurrentSubscription();
 
-    CheckoutResponse createCheckoutSessionUrl(CheckoutRequest checkoutRequest, Long userId);
+    void activateSubscription(Long userId, Long planId, String subscriptionId, String customerId);
 
-     PortalResponse openCustomerPortal(Long userId);
+    void updateSubscription(String subscriptionId, SubscriptionStatus status, Instant periodStart, Instant periodEnd, Boolean cancelAtPeriodEnd, Long planId);
+
+    void cancelSubscription(String subscriptionId);
+
+    void renewSubscriptionPeriod(String gatewaySubscriptionId, Instant periodStart, Instant periodEnd);
+
+    void markSubscriptionPastDue(String subscriptionId);
 }

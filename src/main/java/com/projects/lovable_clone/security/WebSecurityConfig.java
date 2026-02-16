@@ -1,10 +1,13 @@
 package com.projects.lovable_clone.security;
 
+import com.projects.lovable_clone.error.JwtAccessDeniedHandler;
+import com.projects.lovable_clone.error.JwtAuthenticationEntryPoint;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -23,15 +26,29 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     JwtAuthFilter jwtAuthFilter;
+    JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity){
         return httpSecurity
-                .csrf(AbstractHttpConfigurer::disable)
+         .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/stripe/webhook").permitAll()  // Fixed path
+
+                        // Stripe redirect URLs (MUST BE PUBLIC)
+                        .requestMatchers("/success").permitAll()
+                        .requestMatchers("/cancel").permitAll()
+
+                        // Protected endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/payments/checkout").authenticated()
                         .anyRequest().authenticated())
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
