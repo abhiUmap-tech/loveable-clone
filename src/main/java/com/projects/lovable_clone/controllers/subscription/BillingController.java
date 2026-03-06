@@ -7,6 +7,7 @@ import com.projects.lovable_clone.services.SubscriptionService;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
+import com.stripe.model.StripeObject;
 import com.stripe.net.Webhook;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -75,9 +77,19 @@ public class BillingController {
 
         log.info("✅ Received webhook event: {} [{}]", event.getType(), event.getId());
 
+        // Deserialize the Stripe object from the event
+        StripeObject stripeObject = event.getDataObjectDeserializer()
+                .getObject()
+                .orElse(null);
+
+        if (stripeObject == null) {
+            log.error("Failed to deserialize Stripe object for event: {}", event.getType());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to deserialize event data");
+        }
+
         // Process the event
         try {
-            paymentProcessor.handleWebhookEvent(type, stripeObject, metaData);
+            paymentProcessor.handleWebhookEvent(event.getType(), stripeObject, Map.of());
         } catch (Exception e) {
             log.error("Error processing webhook event {}: {}", event.getType(), e.getMessage(), e);
             // Still return 200 to acknowledge receipt
@@ -85,5 +97,9 @@ public class BillingController {
 
         return ResponseEntity.ok("Success");
     }
+
+
+
+
 
 }

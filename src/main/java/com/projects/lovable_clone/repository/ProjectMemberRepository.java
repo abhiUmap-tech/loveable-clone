@@ -21,12 +21,18 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Pr
     SELECT pm.projectRole
     FROM ProjectMember pm
     WHERE pm.id.projectId = :projectId
-      AND pm.id.userId = :userId
-""")
+      AND pm.id.userId = :userId""")
     Optional<ProjectRole> findRoleByProjectIdAndUserId(
             @Param("projectId") Long projectId,
-            @Param("userId") Long userId
-    );
+            @Param("userId") Long userId);
 
     Long user(User user);
+
+    @Query("""
+    SELECT COUNT(pm)
+    FROM ProjectMember pm
+    WHERE pm.id.userId = :userId
+      AND pm.projectRole = com.projects.lovable_clone.enums.ProjectRole.OWNER
+""")
+    Long countOwnedProjectsByUserId(@Param("userId") Long userId);
 }

@@ -5,8 +5,8 @@ import com.projects.lovable_clone.dtos.subscription.CheckoutResponse;
 import com.projects.lovable_clone.dtos.subscription.PortalResponse;
 import com.projects.lovable_clone.entity.Plan;
 import com.projects.lovable_clone.entity.User;
-import com.projects.lovable_clone.entity.UserSubscription;
 import com.projects.lovable_clone.enums.SubscriptionStatus;
+import com.projects.lovable_clone.error.BadRequestException;
 import com.projects.lovable_clone.error.ResourceNotFoundException;
 import com.projects.lovable_clone.repository.PlanRepository;
 import com.projects.lovable_clone.repository.SubscriptionRepository;
@@ -21,7 +21,6 @@ import com.stripe.model.StripeObject;
 import com.stripe.model.Subscription;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 
-import java.time.Instant;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -48,7 +45,6 @@ public class StripePaymentProcessor implements PaymentProcessor {
     SubscriptionRepository subscriptionRepository;
 
 
-
     public StripePaymentProcessor(
             AuthUtil authUtil,
             PlanRepository planRepository,
@@ -58,7 +54,6 @@ public class StripePaymentProcessor implements PaymentProcessor {
         this.frontendUrl = frontendUrl;
         this.userRepository = userRepository;
         this.subscriptionService = subscriptionService;
-
         this.subscriptionRepository = subscriptionRepository;
     }
 
@@ -118,7 +113,31 @@ public class StripePaymentProcessor implements PaymentProcessor {
 
     @Override
     public PortalResponse openCustomerPortal() {
-        return null;
+        var userId = authUtil.getCurrentUserId();
+        log.info("Opening customer portal for user: {}", userId);
+
+        var user = getUser(userId);
+        var stripeCustomerId = user.getStripeCustomerId();
+
+        if(stripeCustomerId == null || stripeCustomerId.isEmpty()) {
+            log.error("User {} does not have a Stripe Customer ID", userId);
+            throw new BadRequestException("User does not have a Stripe Customer ID, UserId:" + userId);
+        }
+
+        try {
+            var portalSession = com.stripe.model.billingportal.Session.create(
+                    com.stripe.param.billingportal.SessionCreateParams.builder()
+                            .setCustomer(stripeCustomerId)
+                            .setReturnUrl(frontendUrl)
+                            .build());
+            log.info("Successfully created portal session for user: {}", userId);
+            return new PortalResponse(portalSession.getUrl());
+
+        } catch (StripeException e) {
+            log.error("Failed to create portal session for user {}: {}", userId, e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
@@ -126,7 +145,7 @@ public class StripePaymentProcessor implements PaymentProcessor {
         log.info("Processing webhook event: {}",type);
 
         switch (type) {
-            case "checkout.session.completed" -> handleCheckoutSessionCompleted((Session) stripeObject, metaData);
+            case "checkout.session.completed" -> handleCheckoutSessionCompleted((Session) stripeObject);
             case "customer.subscription.updated" -> handleSubscriptionUpdated((Subscription) stripeObject);
             case "customer.subscription.deleted" -> handleSubscriptionDeleted((Subscription) stripeObject);
             case "invoice.paid" -> handleInvoicePaid((Invoice) stripeObject);
@@ -137,26 +156,39 @@ public class StripePaymentProcessor implements PaymentProcessor {
 
     }
 
-    private void handleCheckoutSessionCompleted(Session session, Map<String, String> metadata) {
-        if (session == null){
+    private void handleCheckoutSessionCompleted(Session session) {
+        if (session == null) {
             log.error("session object is null inside handleCheckoutSessionCompleted");
             return;
         }
         log.info("📝 Processing checkout.session.completed");
 
-        var userId = Long.parseLong(metadata.get("user_id"));
-        var planId = Long.parseLong(metadata.get("plan_id"));
 
-        var subscriptionId = session.getSubscription();
-        var customerId = session.getCustomer();
 
-        var user = getUser(userId);
+        // Correct approach: retrieve the subscription and read its metadata
+        try {
+            var subscription = Subscription.retrieve(session.getSubscription());
+            var subMetadata = subscription.getMetadata();
 
-        if (user.getStripeCustomerId() == null){
-            user.setStripeCustomerId(customerId);
-            userRepository.save(user);
+            var userId = Long.parseLong(subMetadata.get("userId"));  // matches what you set
+            var planId = Long.parseLong(subMetadata.get("planId"));  // matches what you set
+
+            var subscriptionId = session.getSubscription();
+            var customerId = session.getCustomer();
+
+            var user = getUser(userId);
+
+            if (user.getStripeCustomerId() == null) {
+                user.setStripeCustomerId(customerId);
+                userRepository.save(user);
+            }
+
+            subscriptionService.activateSubscription(userId, planId, subscriptionId, customerId);
+
+        } catch (StripeException e) {
+            log.error("Failed to retrieve subscription during checkout completion: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
         }
-        subscriptionService.activateSubscription(userId, planId, subscriptionId, customerId);
     }
 
 
@@ -199,27 +231,28 @@ public class StripePaymentProcessor implements PaymentProcessor {
     }
 
     private void handleInvoicePaid(Invoice invoice) {
-        log.info("💰 Processing invoice.payment_succeeded");
-        // Update payment status, extend subscription period
+        log.info("💰 Processing invoice.paid");
         var subscriptionId = extractSubscriptionId(invoice);
-
         if (subscriptionId == null) return;
 
+        // Skip if subscription doesn't exist yet (first-time invoice fires before checkout.session.completed)
+        boolean exists = subscriptionRepository.existsByStripeSubscriptionId(subscriptionId);
+        if (!exists) {
+            log.info("Skipping invoice.paid for unknown subscription {} - likely initial invoice before checkout.session.completed", subscriptionId);
+            return;
+        }
+
         try {
-            var subscription = Subscription.retrieve(subscriptionId); //sdk calling the Stripe server
+            var subscription = Subscription.retrieve(subscriptionId);
             var item = subscription.getItems().getData().getFirst();
 
             var periodStart = toInstant(item.getCurrentPeriodStart());
             var periodEnd = toInstant(item.getCurrentPeriodEnd());
 
-            subscriptionService.renewSubscriptionPeriod(
-                    subscriptionId, periodStart, periodEnd);
-
-
+            subscriptionService.renewSubscriptionPeriod(subscriptionId, periodStart, periodEnd);
         } catch (StripeException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     private void handleInvoicePaymentFailed(Invoice invoice) {
@@ -274,6 +307,7 @@ public class StripePaymentProcessor implements PaymentProcessor {
 
         return subDetails.getSubscription();
     }
+
 
 
 }

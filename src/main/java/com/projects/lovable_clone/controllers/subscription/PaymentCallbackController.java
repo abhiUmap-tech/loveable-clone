@@ -44,7 +44,6 @@ public class PaymentCallbackController {
                 response.put("subscriptionId", session.getSubscription());
 
                 log.info("Payment verified successfully for session: {}", sessionId);
-                return ResponseEntity.ok(response);
             } else {
                 response.put("success", false);
                 response.put("message", "Payment not completed");
@@ -52,8 +51,8 @@ public class PaymentCallbackController {
 
                 log.warn("Payment not completed for session: {} - Status: {}",
                         sessionId, session.getPaymentStatus());
-                return ResponseEntity.ok(response);
             }
+            return ResponseEntity.ok(response);
 
         } catch (StripeException e) {
             log.error("Error verifying session {}: {}", sessionId, e.getMessage());
