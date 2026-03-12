@@ -3,9 +3,9 @@ spring:
     name: loveable-clone
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/loveable_db
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:9010/pgvector-db-lovable
+    username: user
+    password: password
 
   jpa:
     open-in-view: false
@@ -19,9 +19,22 @@ spring:
         jdbc:
           time_zone: UTC
 
+# OPEN-AI Configurations
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: https://openrouter.ai
+      chat:
+        options:
+          model: google/gemma-3-27b-it:free
+          temperature: 0.0
+
+
+# JWT-config
 jwt:
   secret-key: 32q4dasnbd17i623kjedfbn23qy4hfwsj
 
+#Strip config
 stripe:
   secret: sk_test_51SymwUC72Uou9fu629JOxeDtbLVFJpYFzwgieFQGszecE2guOcWgC7erKlnLhOR4OScx5K8brEHlW1oa5UXQ3q8600YJIEkXQf
   webhook:
@@ -29,3 +42,18 @@ stripe:
 
 client:
   url: http://localhost:8080
+
+# AI Logging
+logging:
+  level:
+    org.springframework.ai:
+      chat.client: DEBUG
+
+# Minio config
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin123
+  project-bucket: projects
+
+

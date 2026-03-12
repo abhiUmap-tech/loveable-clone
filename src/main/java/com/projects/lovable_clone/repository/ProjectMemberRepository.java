@@ -26,7 +26,6 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Pr
             @Param("projectId") Long projectId,
             @Param("userId") Long userId);
 
-    Long user(User user);
 
     @Query("""
     SELECT COUNT(pm)

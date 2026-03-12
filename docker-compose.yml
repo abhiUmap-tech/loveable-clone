@@ -1,6 +1,20 @@
-version: '3.8'
-
 services:
+  loveable-db:
+    image: postgres:16
+    container_name: loveable-db
+    environment:
+      POSTGRES_DB: loveable_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - loveable-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - lovable-net
+
   stripe-cli:
     image: stripe/stripe-cli:latest
     container_name: stripe-cli
@@ -8,9 +22,47 @@ services:
       - stripe-config:/root/.config/stripe
     command: listen --forward-to host.docker.internal:8080/api/stripe/webhook
     restart: unless-stopped
+    networks:
+      - lovable-net
+
+  pgvector:
+    image: pgvector/pgvector:0.8.1-pg18-trixie
+    container_name: pgvector-db-lovable
+    environment:
+      POSTGRES_DB: pgvector-test
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "9010:5432"
+    volumes:
+      - pgvector-data:/var/lib/postgresql
+    restart: unless-stopped
+    networks:
+      - lovable-net
+
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: minio-lovable
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+    networks:
+      - lovable-net
 
 volumes:
+  loveable-db-data:
+  pgvector-data:
+  minio-data:
   stripe-config:
 
-# Run this command once
-#  docker-compose run --rm stripe-cli login
+networks:
+  lovable-net:
+    driver: bridge
+

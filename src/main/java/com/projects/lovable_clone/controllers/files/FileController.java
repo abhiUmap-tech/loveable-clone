@@ -2,7 +2,7 @@ package com.projects.lovable_clone.controllers.files;
 
 import com.projects.lovable_clone.dtos.project.FileContentResponse;
 import com.projects.lovable_clone.dtos.project.FileNode;
-import com.projects.lovable_clone.services.FileService;
+import com.projects.lovable_clone.services.ProjectFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/projects/{projectId}/files")
 public class FileController {
 
-    private final FileService fileService;
+    private final ProjectFileService fileService;
 
     @GetMapping
     public ResponseEntity<List<FileNode>> getFileTree(@PathVariable Long projectId){

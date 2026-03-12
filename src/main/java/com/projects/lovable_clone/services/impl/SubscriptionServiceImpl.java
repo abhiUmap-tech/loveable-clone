@@ -153,7 +153,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         var countOfOwnedProjects = projectMemberRepository.countOwnedProjectsByUserId(userId);
 
-        Integer FREE_TIER_PROJECTS_ALLOWED = 1;
+        Integer FREE_TIER_PROJECTS_ALLOWED = 100;
         if (currentSubscription.planResponse() == null)
             return countOfOwnedProjects < FREE_TIER_PROJECTS_ALLOWED;
 
