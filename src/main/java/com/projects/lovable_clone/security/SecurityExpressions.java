@@ -5,23 +5,29 @@ import com.projects.lovable_clone.repository.ProjectMemberRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component("security")
 @SuppressWarnings("unused")
 @RequiredArgsConstructor
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityExpressions {
 
     ProjectMemberRepository projectMemberRepository;
     AuthUtil authUtil;
 
-    private boolean hasPermission(Long projectId, ProjectPermission projectPermission){
+    private boolean hasPermission(Long projectId, ProjectPermission projectPermission) {
         var userId = authUtil.getCurrentUserId();
+        log.info("Checking permission: projectId={}, userId={}, permission={}", projectId, userId, projectPermission);
 
         return projectMemberRepository.findRoleByProjectIdAndUserId(projectId, userId)
-                .map(role -> role.getPermissions().contains(projectPermission))
-                .orElse(false);
+                .map(role -> {
+                    log.info("Role found: {}, permissions: {}", role, role.getPermissions());
+                    return role.getPermissions().contains(projectPermission);
+                })
+                .orElse(false); // <-- if this fires, user is not a project member
     }
 
     public boolean canViewProject(Long projectId){

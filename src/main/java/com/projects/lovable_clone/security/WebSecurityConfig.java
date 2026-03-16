@@ -2,6 +2,7 @@ package com.projects.lovable_clone.security;
 
 import com.projects.lovable_clone.error.JwtAccessDeniedHandler;
 import com.projects.lovable_clone.error.JwtAuthenticationEntryPoint;
+import jakarta.servlet.DispatcherType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,14 +33,15 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity){
         return httpSecurity
-         .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Allow async dispatches through without re-authentication
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/stripe/webhook").permitAll()  // Fixed path
-
-                        // Stripe redirect URLs (MUST BE PUBLIC)
+                        .requestMatchers("/api/stripe/webhook").permitAll()
                         .requestMatchers("/success").permitAll()
                         .requestMatchers("/cancel").permitAll()
 

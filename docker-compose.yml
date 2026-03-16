@@ -1,20 +1,6 @@
 services:
-  loveable-db:
-    image: postgres:16
-    container_name: loveable-db
-    environment:
-      POSTGRES_DB: loveable_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      TZ: UTC
-    ports:
-      - "5432:5432"
-    volumes:
-      - loveable-db-data:/var/lib/postgresql/data
-    restart: unless-stopped
-    networks:
-      - lovable-net
 
+# Strip CLI Config
   stripe-cli:
     image: stripe/stripe-cli:latest
     container_name: stripe-cli
@@ -25,6 +11,7 @@ services:
     networks:
       - lovable-net
 
+# PG Vector DB Config
   pgvector:
     image: pgvector/pgvector:0.8.1-pg18-trixie
     container_name: pgvector-db-lovable
@@ -40,6 +27,7 @@ services:
     networks:
       - lovable-net
 
+# Minio config
   minio:
     image: quay.io/minio/minio:latest
     container_name: minio-lovable
@@ -57,7 +45,6 @@ services:
       - lovable-net
 
 volumes:
-  loveable-db-data:
   pgvector-data:
   minio-data:
   stripe-config:

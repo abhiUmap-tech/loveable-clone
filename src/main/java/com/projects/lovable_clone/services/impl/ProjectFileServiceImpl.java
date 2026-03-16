@@ -8,6 +8,7 @@ import com.projects.lovable_clone.mapper.ProjectFileMapper;
 import com.projects.lovable_clone.repository.ProjectFileRepository;
 import com.projects.lovable_clone.repository.ProjectRepository;
 import com.projects.lovable_clone.services.ProjectFileService;
+import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -31,18 +33,34 @@ public class ProjectFileServiceImpl implements ProjectFileService {
     private final MinioClient minioClient;
     private final ProjectFileMapper projectFileMapper;
 
+    private static final String BUCKET_NAME = "projects";
+
     @Value("${minio.project-bucket}")
     private String minioProjectBucket;
 
     @Override
-    public List<FileNode> getFileTree(Long projectId, Long userId) {
+    public List<FileNode> getFileTree(Long projectId) {
         var projectFiles = projectFileRepository.findByProjectId(projectId);
         return projectFileMapper.toListOfFileNode(projectFiles);
     }
 
     @Override
-    public FileContentResponse getFileContent(Long projectId, String path, Long userId) {
-        return null;
+    public FileContentResponse getFileContent(Long projectId, String path) {
+        String objectName = projectId + "/" + path;
+
+        try (InputStream is = minioClient.getObject(
+                        GetObjectArgs.builder()
+                                .bucket(BUCKET_NAME)
+                                .object(objectName)
+                                .build())) {
+
+            String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            return new FileContentResponse(path, content);
+
+        } catch (Exception e) {
+            log.error("Failed to read file: {}/{}", projectId, path, e);
+            throw new RuntimeException("Failed to read file content", e);
+        }
     }
 
     @Override

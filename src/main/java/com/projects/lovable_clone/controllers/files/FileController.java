@@ -22,7 +22,7 @@ public class FileController {
     @GetMapping
     public ResponseEntity<List<FileNode>> getFileTree(@PathVariable Long projectId){
         Long userId = 1L;
-        return ResponseEntity.ok(fileService.getFileTree(projectId, userId));
+        return ResponseEntity.ok(fileService.getFileTree(projectId));
     }
 
     @GetMapping("/{*path}") //src/hooks/get-user-hook.jsx
@@ -30,7 +30,7 @@ public class FileController {
             @PathVariable Long projectId,
             @PathVariable String path){
         Long userId = 1L;
-        return ResponseEntity.ok(fileService.getFileContent(projectId, path, userId));
+        return ResponseEntity.ok(fileService.getFileContent(projectId, path));
     }
 
 

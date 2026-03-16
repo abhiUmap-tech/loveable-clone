@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 @Embeddable
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProjectMemberId {

@@ -1,4 +1,8 @@
 package com.projects.lovable_clone.dtos.chat;
 
-public record ChatRequest(String userMessage, Long projectId) {
-}
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record ChatRequest(
+        Long projectId,
+        @JsonProperty("message") String userMessage
+) {}

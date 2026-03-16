@@ -3,7 +3,7 @@ spring:
     name: loveable-clone
 
   datasource:
-    url: jdbc:postgresql://localhost:9010/pgvector-db-lovable
+    url: jdbc:postgresql://localhost:9010/pgvector-test
     username: user
     password: password
 
@@ -22,12 +22,13 @@ spring:
 # OPEN-AI Configurations
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY}
-      base-url: https://openrouter.ai
+      api-key: ${OPEN_ROUTER_API_KEY}
+      base-url: https://openrouter.ai/api
       chat:
         options:
-          model: google/gemma-3-27b-it:free
+          model: nvidia/nemotron-3-super-120b-a12b:free
           temperature: 0.0
+
 
 
 # JWT-config
