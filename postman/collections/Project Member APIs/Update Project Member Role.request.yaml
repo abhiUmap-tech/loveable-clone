@@ -1,0 +1,7 @@
+$kind: http-request
+url: http://localhost:8080/api/project/1/members/3
+method: PATCH
+body:
+  type: json
+  content: "{\r\n \"role\": \"VIEWER\"\r\n}"
+order: 3000

@@ -14,3 +14,4 @@ public interface ProjectMemberMapper {
     @Mapping(target = "name", source = "user.name")
     MemberResponse toProjectMemberResponseFromMember(ProjectMember projectMember);
 }
+

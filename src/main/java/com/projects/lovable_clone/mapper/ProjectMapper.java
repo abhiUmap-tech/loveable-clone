@@ -3,6 +3,7 @@ package com.projects.lovable_clone.mapper;
 import com.projects.lovable_clone.dtos.project.ProjectResponse;
 import com.projects.lovable_clone.dtos.project.ProjectSummaryResponse;
 import com.projects.lovable_clone.entity.Project;
+import com.projects.lovable_clone.enums.ProjectRole;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public interface ProjectMapper {
     ProjectResponse projectToProjectResponse(Project project);
 
 
-    ProjectSummaryResponse projectToProjectSummaryResponse(Project project);
+    ProjectSummaryResponse projectToProjectSummaryResponse(Project project, ProjectRole projectRole);
 
     List<ProjectSummaryResponse> listProjectsToListOfProjectSummaryResponse(List<Project> projects);
 }

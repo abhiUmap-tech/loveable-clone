@@ -19,7 +19,12 @@ spring:
         jdbc:
           time_zone: UTC
 
-# OPEN-AI Configurations
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # OPEN-AI Configurations
   ai:
     openai:
       api-key: ${OPEN_ROUTER_API_KEY}
@@ -28,7 +33,6 @@ spring:
         options:
           model: nvidia/nemotron-3-super-120b-a12b:free
           temperature: 0.0
-
 
 
 # JWT-config
@@ -56,5 +60,3 @@ minio:
   access-key: minioadmin
   secret-key: minioadmin123
   project-bucket: projects
-
-

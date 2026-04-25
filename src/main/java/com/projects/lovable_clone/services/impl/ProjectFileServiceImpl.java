@@ -2,6 +2,7 @@ package com.projects.lovable_clone.services.impl;
 
 import com.projects.lovable_clone.dtos.project.FileContentResponse;
 import com.projects.lovable_clone.dtos.project.FileNode;
+import com.projects.lovable_clone.dtos.project.FileTreeResponse;
 import com.projects.lovable_clone.entity.ProjectFile;
 import com.projects.lovable_clone.error.ResourceNotFoundException;
 import com.projects.lovable_clone.mapper.ProjectFileMapper;
@@ -39,9 +40,10 @@ public class ProjectFileServiceImpl implements ProjectFileService {
     private String minioProjectBucket;
 
     @Override
-    public List<FileNode> getFileTree(Long projectId) {
+    public FileTreeResponse getFileTree(Long projectId) {
         var projectFiles = projectFileRepository.findByProjectId(projectId);
-        return projectFileMapper.toListOfFileNode(projectFiles);
+        List<FileNode> projectFileNodes = projectFileMapper.toListOfFileNode(projectFiles);
+        return new FileTreeResponse(projectFileNodes);
     }
 
     @Override

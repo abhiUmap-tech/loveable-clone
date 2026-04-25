@@ -1,0 +1,5 @@
+$kind: http-request
+name: Dev Deploy
+url: http://localhost:8080/api/projects/1/deploy
+method: POST
+order: 4444462801485849

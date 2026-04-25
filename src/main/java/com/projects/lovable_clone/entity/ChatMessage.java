@@ -1,5 +1,6 @@
 package com.projects.lovable_clone.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projects.lovable_clone.enums.MessageRole;
 import jakarta.persistence.*;
 import lombok.*;

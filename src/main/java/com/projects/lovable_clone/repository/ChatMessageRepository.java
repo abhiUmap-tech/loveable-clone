@@ -13,7 +13,8 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
         SELECT DISTINCT m FROM ChatMessage m
         LEFT JOIN FETCH m.events e
         WHERE m.chatSession = :chatSession
-        ORDER BY m.createdAt ASC""")
+        ORDER BY m.createdAt ASC,
+        e.sequenceOrder ASC""")
     List<ChatMessage> findByChatSession(ChatSession chatSession);
 
 

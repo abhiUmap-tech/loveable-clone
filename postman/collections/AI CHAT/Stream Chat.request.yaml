@@ -1,0 +1,18 @@
+$kind: http-request
+name: Stream Chat
+url: http://localhost:8080/api/chat/stream
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \ \"projectId\" : 1,\r
+
+    \ \"message\" : \"Add dark theme to the app\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 2000

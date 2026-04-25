@@ -1,8 +1,10 @@
 package com.projects.lovable_clone.controllers.project;
 
+import com.projects.lovable_clone.dtos.deploy.DeployResponse;
 import com.projects.lovable_clone.dtos.project.ProjectRequest;
 import com.projects.lovable_clone.dtos.project.ProjectResponse;
 import com.projects.lovable_clone.dtos.project.ProjectSummaryResponse;
+import com.projects.lovable_clone.services.DeploymentService;
 import com.projects.lovable_clone.services.ProjectService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -21,7 +23,7 @@ import java.util.List;
 public class ProjectController {
 
     ProjectService projectService;
-
+    DeploymentService deploymentService;
 
     @GetMapping
     public ResponseEntity<List<ProjectSummaryResponse>> getMyProject(){
@@ -29,33 +31,34 @@ public class ProjectController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable  Long id){
+    public ResponseEntity<ProjectSummaryResponse> getProjectById(@PathVariable  Long id){
         return ResponseEntity.ok(projectService.getUserProjectsById(id));
     }
 
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@RequestBody @Valid ProjectRequest projectRequest){
-
         return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(projectRequest));
     }
 
     @PatchMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> updateProject(@PathVariable Long projectId, @RequestBody @Valid ProjectRequest projectRequest){
-
         return ResponseEntity.ok(projectService.updateProject(projectId, projectRequest));
     }
 
     @PutMapping("/{projectId}/restore")
     public ResponseEntity<String> restoreProject(@PathVariable Long projectId){
-
         return ResponseEntity.ok(projectService.restoreProject(projectId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProject(@PathVariable Long id){
-
         return ResponseEntity.ok(projectService.softDelete(id));
+    }
 
+
+    @PostMapping("/{id}/deploy")
+    public ResponseEntity<DeployResponse> deployProject(@PathVariable Long id){
+        return ResponseEntity.ok(deploymentService.deploy(id));
     }
 
 

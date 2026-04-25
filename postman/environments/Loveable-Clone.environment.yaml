@@ -1,0 +1,5 @@
+name: Loveable-Clone
+values:
+  - key: token
+    value: ''
+    enabled: true

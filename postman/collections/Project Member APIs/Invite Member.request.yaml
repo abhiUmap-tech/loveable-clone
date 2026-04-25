@@ -1,0 +1,15 @@
+$kind: http-request
+url: http://localhost:8080/api/project/1/members
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \ \r
+
+    \ \"username\" : \"aniketPatil@spring.com\",\r
+
+    \ \"projectRole\" : \"EDITOR\"\r
+
+    }"
+order: 2000
